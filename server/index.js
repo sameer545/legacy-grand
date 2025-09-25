@@ -25,8 +25,13 @@ const PORT = process.env.PORT || 5000;
 
 // Middlewares
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
-  credentials: true,
+  origin: [
+    'https://legacy-grand-frontend.onrender.com',
+    'https://legacygrandhotel.com',
+    'https://www.legacygrandhotel.com',
+    'http://localhost:3000' // for local development
+  ],
+  credentials: true
 }));
 app.use(express.json());
 
