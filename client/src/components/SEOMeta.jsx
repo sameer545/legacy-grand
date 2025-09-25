@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 const SEOMeta = ({
   title = "Hotel Legacy Grand - Luxury Accommodation",
   description = "Experience luxury and comfort at Hotel Legacy Grand.",
-  keywords = "luxury hotel, accommodation, comfort",
+  keywords = "Best hotels in Gachibowli, Gachibowli, AIG hospital, near gachibowli, near AIG, luxury hotel, accommodation, comfort",
   canonical = "https://legacygrandhotel.com",
   image = "/images/og-image.jpg",
   imageAlt = "Hotel Legacy Grand",
