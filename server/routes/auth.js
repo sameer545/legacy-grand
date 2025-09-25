@@ -46,7 +46,7 @@ router.post("/login", [
     res.cookie("auth_token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "none",
       maxAge: 86400000
     });
 
@@ -71,11 +71,15 @@ router.get("/validate-token", verifyToken, (req, res) => {
 });
 
 
+// ✅ LOGOUT
 router.post("/logout", (req, res) => {
-  res.cookie("auth_token", "", {
-    expires: new Date(0),
+  res.clearCookie("auth_token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax"
   });
-  res.send();
+  res.status(200).json({ message: "Logged out" });
 });
+
 
 module.exports = router;

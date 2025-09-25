@@ -15,6 +15,9 @@ const cookieParser = require("cookie-parser");
 
 
 const app = express();
+if (process.env.NODE_ENV === "production") {
+  app.set("trust proxy", 1); // trust Render's proxy
+}
 app.use(cookieParser());
 app.use(express.urlencoded({extended:true}));
 
