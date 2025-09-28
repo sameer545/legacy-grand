@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import {
   FaWifi,
@@ -9,17 +9,7 @@ import {
 } from "react-icons/fa";
 
 const RoomCard = ({ room }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleImageClick = () => {
-    if (room.images && room.images.length > 0) {
-      setIsModalOpen(true);
-    }
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
 
   return (
     <div className="group relative bg-black/60 border border-[#bfa44250] rounded-xl overflow-hidden shadow-md backdrop-blur-lg transition-transform hover:scale-[1.02] hover:shadow-[0_0_20px_#bfa442aa] duration-300">
@@ -29,8 +19,7 @@ const RoomCard = ({ room }) => {
           <img
             src={room.images[0]}
             alt={room.roomType || room.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 cursor-pointer"
-            onClick={handleImageClick}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
           <div className="flex items-center justify-center w-full h-full text-gray-500 italic">
@@ -73,42 +62,7 @@ const RoomCard = ({ room }) => {
           View Details
         </Link>
       </div>
-
-      {/* Modal for viewing all images */}
-      {isModalOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
-          onClick={closeModal}
-        >
-          <div
-            className="bg-gray-900 p-6 rounded-lg max-w-5xl w-full overflow-auto max-h-[90vh] border border-yellow-600"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-2xl font-bold mb-4 text-yellow-400">
-              {room.roomType || room.name}
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {room.images.map((img, index) => (
-                <img
-                  key={index}
-                  src={img}
-                  alt={`${room.roomType || room.name} ${index + 1}`}
-                  className="w-full h-48 object-cover rounded border border-yellow-600"
-                />
-              ))}
-            </div>
-            <div className="text-right mt-6">
-              <button
-                className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded transition"
-                onClick={closeModal}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+      </div>
   );
 };
 
