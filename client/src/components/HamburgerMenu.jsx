@@ -1,16 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useAppContext } from "../contexts/AppContext";
+import LogoutButton from "./LogoutButton";
 import { 
   FaHome, 
   FaBed, 
   FaImages, 
   FaInfoCircle, 
   FaPhone,
-  FaCalendarCheck
+  FaCalendarCheck,
+  FaTachometerAlt,
+  FaUser,
+  FaSignInAlt
 } from "react-icons/fa";
 
 const HamburgerMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { isLoggedIn, role } = useAppContext();
 
   // Close menu on escape key
   useEffect(() => {
@@ -190,6 +196,64 @@ const HamburgerMenu = () => {
                 </button>
               </li>
             ))}
+
+            {/* Authentication Section */}
+            {isLoggedIn ? (
+              <>
+                {/* Dashboard for Admin */}
+                {role === "admin" && (
+                  <li>
+                    <Link
+                      to="/admin"
+                      onClick={closeMenu}
+                      className="flex items-center w-full py-4 px-4 text-left text-white hover:text-[#D4AF37] hover:bg-white/5 rounded-lg transition-all duration-300 border-l-2 border-transparent hover:border-[#D4AF37] group"
+                    >
+                      <FaTachometerAlt className="w-5 h-5 mr-3 transition-colors" />
+                      <span className="text-lg font-medium group-hover:translate-x-1 transition-transform duration-200">
+                        Dashboard
+                      </span>
+                    </Link>
+                  </li>
+                )}
+
+                {/* My Bookings for Regular Users Only */}
+                {role !== "admin" && (
+                  <li>
+                    <Link
+                      to="/my-bookings"
+                      onClick={closeMenu}
+                      className="flex items-center w-full py-4 px-4 text-left text-white hover:text-[#D4AF37] hover:bg-white/5 rounded-lg transition-all duration-300 border-l-2 border-transparent hover:border-[#D4AF37] group"
+                    >
+                      <FaUser className="w-5 h-5 mr-3 transition-colors" />
+                      <span className="text-lg font-medium group-hover:translate-x-1 transition-transform duration-200">
+                        My Bookings
+                      </span>
+                    </Link>
+                  </li>
+                )}
+
+                {/* Logout */}
+                <li>
+                  <div className="flex items-center w-full py-4 px-4 text-left text-red-400 hover:text-red-300 hover:bg-white/5 rounded-lg transition-all duration-300 border-l-2 border-transparent hover:border-red-400 group">
+                    <LogoutButton />
+                  </div>
+                </li>
+              </>
+            ) : (
+              /* Login Link for Non-authenticated Users */
+              <li>
+                <Link
+                  to="/login"
+                  onClick={closeMenu}
+                  className="flex items-center w-full py-4 px-4 text-left text-white hover:text-[#D4AF37] hover:bg-white/5 rounded-lg transition-all duration-300 border-l-2 border-transparent hover:border-[#D4AF37] group"
+                >
+                  <FaSignInAlt className="w-5 h-5 mr-3 transition-colors" />
+                  <span className="text-lg font-medium group-hover:translate-x-1 transition-transform duration-200">
+                    Login
+                  </span>
+                </Link>
+              </li>
+            )}
             
             {/* Book Now Button */}
             <li className="mt-6">
@@ -214,7 +278,7 @@ const HamburgerMenu = () => {
             {/* Contact Icons */}
             <div className="flex justify-center space-x-6 pt-4">
               <a
-                href="tel:+919876543210"
+                href="tel:+91 9985997755"
                 className="text-gray-400 hover:text-[#D4AF37] transition-colors p-2 rounded-full hover:bg-white/5"
                 title="Call us"
               >
