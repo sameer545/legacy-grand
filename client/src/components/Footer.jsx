@@ -59,7 +59,7 @@ const Footer = () => {
                 </div>
                 <div className="flex items-center gap-3">
                   <FaEnvelope className="text-[#D4AF37] flex-shrink-0" />
-                  <span className="text-gray-300 text-sm">info@legacygrand.com</span>
+                  <span className="text-gray-300 text-sm">bookings@legacygrandhotel.com</span>
                 </div>
                   <div className="flex items-center gap-3">
                 <Link
@@ -164,7 +164,7 @@ const Footer = () => {
           "description": "Luxury hotel in the heart of the city with world-class amenities and exceptional service",
           "url": "https://legacygrand.com",
           "telephone": "+91-9985997755",
-          "email": "info@legacygrand.com",
+          "email": "bookings@legacygrandhotel.com",
           "address": {
             "@type": "PostalAddress",
             "streetAddress": "6th Floor, Plot No: 25, 40, Babukhan Ln, near AIG Hospital, P Janardhan Reddy Nagar, Gachibowli, Hyderabad, Telangana 500032",

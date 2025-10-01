@@ -491,8 +491,7 @@ const Home = () => {
               </div>
               <h3 className="font-semibold text-white text-base sm:text-lg mb-2">Email</h3>
               <p className="text-gray-400 text-sm sm:text-base">
-                info@legacygrand.com<br />
-                reservations@legacygrand.com
+                bookings@legacygrandhotel.com<br />
               </p>
             </div>
           </div>

@@ -287,7 +287,7 @@ const HamburgerMenu = () => {
                 </svg>
               </a>
               <a
-                href="mailto:info@legacygrand.com"
+                href="mailto:bookings@legacygrandhotel.com"
                 className="text-gray-400 hover:text-[#D4AF37] transition-colors p-2 rounded-full hover:bg-white/5"
                 title="Email us"
               >
