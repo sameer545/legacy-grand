@@ -3,8 +3,8 @@ const nodemailer = require('nodemailer');
 // GoDaddy Email Configuration
 const transporter = nodemailer.createTransport({
   host: 'smtpout.secureserver.net', // GoDaddy SMTP server
-  port: 465, // Use 465 for SSL or 587 for TLS
-  secure: true, // true for port 465, false for 587
+  port: 587, // Use 465 for SSL or 587 for TLS
+  secure: false, // true for port 465, false for 587
   auth: {
     user: process.env.EMAIL_USER, // Your full GoDaddy email (e.g., bookings@yourdomain.com)
     pass: process.env.EMAIL_PASS  // Your email password
