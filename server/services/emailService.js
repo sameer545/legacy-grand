@@ -1,24 +1,18 @@
 const nodemailer = require('nodemailer');
 
-// Create transporter (using Gmail by default)
+// GoDaddy Email Configuration
 const transporter = nodemailer.createTransport({
-  service: 'gmail', // or SMTP
+  host: 'smtpout.secureserver.net', // GoDaddy SMTP server
+  port: 465, // Use 465 for SSL or 587 for TLS
+  secure: true, // true for port 465, false for 587
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
+    user: process.env.EMAIL_USER, // Your full GoDaddy email (e.g., bookings@yourdomain.com)
+    pass: process.env.EMAIL_PASS  // Your email password
+  },
+  tls: {
+    rejectUnauthorized: false // May be needed for some GoDaddy configurations
   }
 });
-
-// Alternative SMTP example (uncomment if needed)
-// const transporter = nodemailer.createTransport({
-//   host: process.env.SMTP_HOST,
-//   port: process.env.SMTP_PORT,
-//   secure: false, // true for 465, false for other ports
-//   auth: {
-//     user: process.env.SMTP_USER,
-//     pass: process.env.SMTP_PASS
-//   }
-// });
 
 const generateBookingEmailTemplate = (booking, user, room) => {
   const checkInDate = new Date(booking.checkIn).toLocaleDateString('en-GB', {
@@ -47,25 +41,135 @@ const generateBookingEmailTemplate = (booking, user, room) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Booking Confirmation - Hotel Legacy Grand</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          line-height: 1.6;
+          color: #333;
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 20px;
+        }
+        .header {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          padding: 30px;
+          text-align: center;
+          border-radius: 8px 8px 0 0;
+        }
+        .content {
+          background: #f9f9f9;
+          padding: 30px;
+          border: 1px solid #e0e0e0;
+        }
+        .booking-details {
+          background: white;
+          padding: 20px;
+          border-radius: 8px;
+          margin: 20px 0;
+        }
+        .detail-row {
+          display: flex;
+          justify-content: space-between;
+          padding: 10px 0;
+          border-bottom: 1px solid #f0f0f0;
+        }
+        .detail-label {
+          font-weight: bold;
+          color: #666;
+        }
+        .detail-value {
+          color: #333;
+        }
+        .footer {
+          text-align: center;
+          padding: 20px;
+          color: #666;
+          font-size: 12px;
+        }
+        .btn {
+          display: inline-block;
+          padding: 12px 30px;
+          background: #667eea;
+          color: white;
+          text-decoration: none;
+          border-radius: 5px;
+          margin: 20px 0;
+        }
+      </style>
     </head>
     <body>
-      <h1>🏨 Hotel Legacy Grand</h1>
-      <p>Dear ${user.name},</p>
-      <p>Thank you for choosing Hotel Legacy Grand! Here are your booking details:</p>
-      <ul>
-        <li><strong>Booking ID:</strong> #${booking._id
-          .toString()
-          .slice(-8)
-          .toUpperCase()}</li>
-        <li><strong>Room:</strong> ${room.name}</li>
-        <li><strong>Check-in:</strong> ${checkInDate}</li>
-        <li><strong>Check-out:</strong> ${checkOutDate}</li>
-        <li><strong>Duration:</strong> ${nights} night${
+      <div class="header">
+        <h1>🏨 Hotel Legacy Grand</h1>
+        <p>Booking Confirmation</p>
+      </div>
+      
+      <div class="content">
+        <p>Dear <strong>${user.name}</strong>,</p>
+        <p>Thank you for choosing Hotel Legacy Grand! We're delighted to confirm your reservation.</p>
+        
+        <div class="booking-details">
+          <h2 style="margin-top: 0; color: #667eea;">Booking Details</h2>
+          
+          <div class="detail-row">
+            <span class="detail-label">Booking ID:</span>
+            <span class="detail-value">#${booking._id
+              .toString()
+              .slice(-8)
+              .toUpperCase()}</span>
+          </div>
+          
+          <div class="detail-row">
+            <span class="detail-label">Room Type:</span>
+            <span class="detail-value">${room.name}</span>
+          </div>
+          
+          <div class="detail-row">
+            <span class="detail-label">Check-in:</span>
+            <span class="detail-value">${checkInDate}</span>
+          </div>
+          
+          <div class="detail-row">
+            <span class="detail-label">Check-out:</span>
+            <span class="detail-value">${checkOutDate}</span>
+          </div>
+          
+          <div class="detail-row">
+            <span class="detail-label">Duration:</span>
+            <span class="detail-value">${nights} night${
     nights > 1 ? 's' : ''
-  }</li>
-        <li><strong>Total Amount:</strong> ₹${booking.totalAmount.toLocaleString()}</li>
-        <li><strong>Payment Status:</strong> ${booking.paymentStatus}</li>
-      </ul>
+  }</span>
+          </div>
+          
+          <div class="detail-row" style="border-bottom: none;">
+            <span class="detail-label">Total Amount:</span>
+            <span class="detail-value" style="font-size: 18px; font-weight: bold; color: #667eea;">₹${booking.totalAmount.toLocaleString()}</span>
+          </div>
+          
+          <div class="detail-row" style="border-bottom: none;">
+            <span class="detail-label">Payment Status:</span>
+            <span class="detail-value" style="color: ${
+              booking.paymentStatus === 'Paid' ? '#28a745' : '#ffc107'
+            }; font-weight: bold;">${booking.paymentStatus}</span>
+          </div>
+        </div>
+        
+        <p><strong>Check-in Time:</strong> 2:00 PM<br>
+        <strong>Check-out Time:</strong> 11:00 AM</p>
+        
+        <p>Please bring a valid ID proof at the time of check-in.</p>
+        
+        <p>If you have any questions or need to modify your booking, please contact us:</p>
+        <p>
+          📧 Email: ${process.env.EMAIL_USER}<br>
+          📞 Phone: +91 XXX XXX XXXX
+        </p>
+      </div>
+      
+      <div class="footer">
+        <p>© ${new Date().getFullYear()} Hotel Legacy Grand. All rights reserved.</p>
+        <p>This is an automated email. Please do not reply directly to this message.</p>
+      </div>
     </body>
     </html>
   `;
@@ -102,15 +206,55 @@ const sendBookingCancellationEmail = async (booking, user, room) => {
         .slice(-8)
         .toUpperCase()}]`,
       html: `
-        <h2>Dear ${user.name},</h2>
-        <p>Your booking has been cancelled.</p>
-        <p><strong>Booking ID:</strong> #${booking._id
-          .toString()
-          .slice(-8)
-          .toUpperCase()}</p>
-        <p><strong>Room Type:</strong> ${room.name}</p>
-        <p><strong>Amount:</strong> ₹${booking.totalAmount.toLocaleString()}</p>
-        <p>Refunds (if applicable) will be processed within 5–7 business days.</p>
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              line-height: 1.6;
+              color: #333;
+              max-width: 600px;
+              margin: 0 auto;
+              padding: 20px;
+            }
+            .header {
+              background: #dc3545;
+              color: white;
+              padding: 30px;
+              text-align: center;
+              border-radius: 8px 8px 0 0;
+            }
+            .content {
+              background: #f9f9f9;
+              padding: 30px;
+              border: 1px solid #e0e0e0;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>🏨 Hotel Legacy Grand</h1>
+            <p>Booking Cancellation</p>
+          </div>
+          <div class="content">
+            <h2>Dear ${user.name},</h2>
+            <p>Your booking has been cancelled successfully.</p>
+            <p><strong>Booking ID:</strong> #${booking._id
+              .toString()
+              .slice(-8)
+              .toUpperCase()}</p>
+            <p><strong>Room Type:</strong> ${room.name}</p>
+            <p><strong>Amount:</strong> ₹${booking.totalAmount.toLocaleString()}</p>
+            <p><strong>Refund Policy:</strong> Refunds (if applicable) will be processed within 5–7 business days to your original payment method.</p>
+            <p>If you have any questions, please contact us at ${
+              process.env.EMAIL_USER
+            }</p>
+            <p>We hope to serve you again in the future!</p>
+          </div>
+        </body>
+        </html>
       `
     };
 
