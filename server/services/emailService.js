@@ -4,19 +4,22 @@ const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const generateBookingEmailTemplate = (booking, user, room) => {
-  const checkInDate = new Date(booking.checkIn).toLocaleDateString('en-GB', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
+const checkInDate = new Date(booking.checkIn).toLocaleDateString('en-GB', {
+  weekday: 'long',
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'Asia/Kolkata'
+});
 
-  const checkOutDate = new Date(booking.checkOut).toLocaleDateString('en-GB', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
+const checkOutDate = new Date(booking.checkOut).toLocaleDateString('en-GB', {
+  weekday: 'long',
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'Asia/Kolkata'
+});
+
 
   const nights = Math.ceil(
     (new Date(booking.checkOut) - new Date(booking.checkIn)) /
@@ -128,7 +131,7 @@ const generateBookingEmailTemplate = (booking, user, room) => {
         </div>
         
         <p><strong>Check-in Time:</strong> 2:00 PM<br>
-        <strong>Check-out Time:</strong> 11:00 AM</p>
+        <strong>Check-out Time:</strong> 1:00 PM</p>
         
         <p>Please bring a valid ID proof at the time of check-in.</p>
         
