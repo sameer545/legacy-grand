@@ -1,9 +1,8 @@
 const CACHE_NAME = "legacy-grand-cache-v2"; // bump on deploy
-
 const STATIC_ASSETS = [
   "/favicon.ico",
   "/manifest.json"
-  // don’t cache index.html here
+  // don't cache index.html here
 ];
 
 /* eslint-disable-next-line no-restricted-globals */
@@ -31,7 +30,7 @@ self.addEventListener("activate", (event) => {
 /* eslint-disable-next-line no-restricted-globals */
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
-
+  
   // ✅ Network-first for HTML
   if (event.request.mode === "navigate") {
     event.respondWith(
@@ -39,21 +38,37 @@ self.addEventListener("fetch", (event) => {
     );
     return;
   }
-
-  // ✅ Network-first for API
+  
+  // ✅ Network-first for API (only cache GET requests)
   if (url.pathname.startsWith("/api/")) {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          // Only cache GET requests
+          if (event.request.method === "GET") {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
           return response;
         })
-        .catch(() => caches.match(event.request))
+        .catch(() => {
+          // Only try to retrieve GET requests from cache
+          if (event.request.method === "GET") {
+            return caches.match(event.request);
+          }
+          // Return error response for non-GET requests
+          return new Response(
+            JSON.stringify({ error: "Network error" }), 
+            {
+              status: 503,
+              headers: { "Content-Type": "application/json" }
+            }
+          );
+        })
     );
     return;
   }
-
+  
   // ✅ Cache-first for static assets
   event.respondWith(
     caches.match(event.request).then((cached) => cached || fetch(event.request))
