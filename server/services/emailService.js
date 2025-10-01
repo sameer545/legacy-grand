@@ -1,18 +1,7 @@
-const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
 
-// GoDaddy Email Configuration
-const transporter = nodemailer.createTransport({
-  host: 'smtpout.secureserver.net', // GoDaddy SMTP server
-  port: 587, // Use 465 for SSL or 587 for TLS
-  secure: false, // true for port 465, false for 587
-  auth: {
-    user: process.env.EMAIL_USER, // Your full GoDaddy email (e.g., bookings@yourdomain.com)
-    pass: process.env.EMAIL_PASS  // Your email password
-  },
-  tls: {
-    rejectUnauthorized: false // May be needed for some GoDaddy configurations
-  }
-});
+// Initialize SendGrid
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const generateBookingEmailTemplate = (booking, user, room) => {
   const checkInDate = new Date(booking.checkIn).toLocaleDateString('en-GB', {
@@ -87,15 +76,6 @@ const generateBookingEmailTemplate = (booking, user, room) => {
           color: #666;
           font-size: 12px;
         }
-        .btn {
-          display: inline-block;
-          padding: 12px 30px;
-          background: #667eea;
-          color: white;
-          text-decoration: none;
-          border-radius: 5px;
-          margin: 20px 0;
-        }
       </style>
     </head>
     <body>
@@ -113,10 +93,7 @@ const generateBookingEmailTemplate = (booking, user, room) => {
           
           <div class="detail-row">
             <span class="detail-label">Booking ID:</span>
-            <span class="detail-value">#${booking._id
-              .toString()
-              .slice(-8)
-              .toUpperCase()}</span>
+            <span class="detail-value">#${booking._id.toString().slice(-8).toUpperCase()}</span>
           </div>
           
           <div class="detail-row">
@@ -136,9 +113,7 @@ const generateBookingEmailTemplate = (booking, user, room) => {
           
           <div class="detail-row">
             <span class="detail-label">Duration:</span>
-            <span class="detail-value">${nights} night${
-    nights > 1 ? 's' : ''
-  }</span>
+            <span class="detail-value">${nights} night${nights > 1 ? 's' : ''}</span>
           </div>
           
           <div class="detail-row" style="border-bottom: none;">
@@ -148,9 +123,7 @@ const generateBookingEmailTemplate = (booking, user, room) => {
           
           <div class="detail-row" style="border-bottom: none;">
             <span class="detail-label">Payment Status:</span>
-            <span class="detail-value" style="color: ${
-              booking.paymentStatus === 'Paid' ? '#28a745' : '#ffc107'
-            }; font-weight: bold;">${booking.paymentStatus}</span>
+            <span class="detail-value" style="color: ${booking.paymentStatus === 'Paid' ? '#28a745' : '#ffc107'}; font-weight: bold;">${booking.paymentStatus}</span>
           </div>
         </div>
         
@@ -161,8 +134,8 @@ const generateBookingEmailTemplate = (booking, user, room) => {
         
         <p>If you have any questions or need to modify your booking, please contact us:</p>
         <p>
-          📧 Email: ${process.env.EMAIL_USER}<br>
-          📞 Phone: +91 XXX XXX XXXX
+          📧 Email: bookings@legacygrandhotel.com<br>
+          📞 Phone: +91 9985997755
         </p>
       </div>
       
@@ -177,34 +150,38 @@ const generateBookingEmailTemplate = (booking, user, room) => {
 
 const sendBookingConfirmationEmail = async (booking, user, room) => {
   try {
-    const mailOptions = {
-      from: `"Hotel Legacy Grand" <${process.env.EMAIL_USER}>`,
+    const msg = {
       to: user.email,
-      subject: `Booking Confirmation - Hotel Legacy Grand [#${booking._id
-        .toString()
-        .slice(-8)
-        .toUpperCase()}]`,
+      from: {
+        email: process.env.SENDGRID_VERIFIED_SENDER,
+        name: 'Hotel Legacy Grand'
+      },
+      subject: `Booking Confirmation - Hotel Legacy Grand [#${booking._id.toString().slice(-8).toUpperCase()}]`,
       html: generateBookingEmailTemplate(booking, user, room)
     };
 
-    const result = await transporter.sendMail(mailOptions);
-    console.log('✅ Booking confirmation email sent:', result.messageId);
-    return { success: true, messageId: result.messageId };
+    const result = await sgMail.send(msg);
+    console.log('✅ Booking confirmation email sent via SendGrid');
+    console.log('Message ID:', result[0].headers['x-message-id']);
+    return { success: true, messageId: result[0].headers['x-message-id'] };
   } catch (error) {
     console.error('❌ Error sending booking confirmation email:', error);
+    if (error.response) {
+      console.error('SendGrid error details:', error.response.body);
+    }
     return { success: false, error: error.message };
   }
 };
 
 const sendBookingCancellationEmail = async (booking, user, room) => {
   try {
-    const mailOptions = {
-      from: `"Hotel Legacy Grand" <${process.env.EMAIL_USER}>`,
+    const msg = {
       to: user.email,
-      subject: `Booking Cancellation - Hotel Legacy Grand [#${booking._id
-        .toString()
-        .slice(-8)
-        .toUpperCase()}]`,
+      from: {
+        email: process.env.SENDGRID_VERIFIED_SENDER,
+        name: 'Hotel Legacy Grand'
+      },
+      subject: `Booking Cancellation - Hotel Legacy Grand [#${booking._id.toString().slice(-8).toUpperCase()}]`,
       html: `
         <!DOCTYPE html>
         <html lang="en">
@@ -241,16 +218,11 @@ const sendBookingCancellationEmail = async (booking, user, room) => {
           <div class="content">
             <h2>Dear ${user.name},</h2>
             <p>Your booking has been cancelled successfully.</p>
-            <p><strong>Booking ID:</strong> #${booking._id
-              .toString()
-              .slice(-8)
-              .toUpperCase()}</p>
+            <p><strong>Booking ID:</strong> #${booking._id.toString().slice(-8).toUpperCase()}</p>
             <p><strong>Room Type:</strong> ${room.name}</p>
             <p><strong>Amount:</strong> ₹${booking.totalAmount.toLocaleString()}</p>
             <p><strong>Refund Policy:</strong> Refunds (if applicable) will be processed within 5–7 business days to your original payment method.</p>
-            <p>If you have any questions, please contact us at ${
-              process.env.EMAIL_USER
-            }</p>
+            <p>If you have any questions, please contact us at bookings@legacygrandhotel.com</p>
             <p>We hope to serve you again in the future!</p>
           </div>
         </body>
@@ -258,9 +230,9 @@ const sendBookingCancellationEmail = async (booking, user, room) => {
       `
     };
 
-    const result = await transporter.sendMail(mailOptions);
-    console.log('✅ Booking cancellation email sent:', result.messageId);
-    return { success: true, messageId: result.messageId };
+    const result = await sgMail.send(msg);
+    console.log('✅ Booking cancellation email sent via SendGrid');
+    return { success: true, messageId: result[0].headers['x-message-id'] };
   } catch (error) {
     console.error('❌ Error sending booking cancellation email:', error);
     return { success: false, error: error.message };
@@ -269,8 +241,15 @@ const sendBookingCancellationEmail = async (booking, user, room) => {
 
 const testEmailConfiguration = async () => {
   try {
-    await transporter.verify();
-    console.log('✅ Email transporter is configured correctly');
+    if (!process.env.SENDGRID_API_KEY) {
+      console.error('❌ SENDGRID_API_KEY not configured');
+      return false;
+    }
+    if (!process.env.SENDGRID_VERIFIED_SENDER) {
+      console.error('❌ SENDGRID_VERIFIED_SENDER not configured');
+      return false;
+    }
+    console.log('✅ SendGrid is configured correctly');
     return true;
   } catch (error) {
     console.error('❌ Email configuration error:', error);
@@ -281,6 +260,5 @@ const testEmailConfiguration = async () => {
 module.exports = {
   sendBookingConfirmationEmail,
   sendBookingCancellationEmail,
-  testEmailConfiguration,
-  transporter
+  testEmailConfiguration
 };
